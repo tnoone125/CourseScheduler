@@ -1,0 +1,6 @@
+@CourseScheduler.Web.Server_HostAddress = http://localhost:5281
+
+GET {{CourseScheduler.Web.Server_HostAddress}}/schedulerhome/
+Accept: application/json
+
+###
