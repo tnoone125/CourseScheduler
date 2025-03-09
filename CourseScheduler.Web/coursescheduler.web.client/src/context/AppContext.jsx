@@ -9,6 +9,7 @@ export function AppProvider({ children }) {
     const [rooms, setRooms] = useState([
         { name: "", studentCapacity: "", permittedDepartments: [] }
     ]);
+    const [timeslots, setTimeslots] = useState([]);
     const [currentStep, setCurrentStep] = useState(1);
 
     return (
@@ -17,6 +18,8 @@ export function AppProvider({ children }) {
             setTeachers,
             rooms,
             setRooms,
+            timeslots,
+            setTimeslots,
             currentStep,
             setCurrentStep,
         }}>

@@ -12,7 +12,7 @@ export default function InstructorForm() {
     const { teachers, setTeachers, setCurrentStep } = useContext(AppContext);
     const [hoverXIndex, setHoverXIndex] = useState(null);
     const [invalidMessages, setInvalidMessages] = useState([]);
-    const [deptInputs, setDeptInputs] = useState([""]);
+    const [deptInputs, setDeptInputs] = useState([...teachers.map(t => t.department)]);
 
     const currentTeacherDepts = teachers.map(t => t.department).filter(d => d && d != "");
     const defaultDepartments = ['Mathematics', 'Computer Science', 'English', 'Theology', 'Classical Languages', 'Modern Languages', 'Social Studies', 'Science'];
@@ -137,9 +137,9 @@ export default function InstructorForm() {
         }
     };
 
-    const handleInputUpdate = (e, i) => {
-        let depts = deptInputs;
-        depts[i] = e.value;
+    const handleInputUpdate = (dept, i) => {
+        let depts = [...deptInputs];
+        depts[i] = dept;
         setDeptInputs(depts);
     }
 
@@ -153,17 +153,18 @@ export default function InstructorForm() {
                         onChange={(e) => handleChange(index, "name", e.target.value)}
                     />
                     <AutoComplete
-                        value={teacher.department !== "" ? teacher.department : deptInputs[index]}
+                        value={deptInputs[index]}
                         onChange={
-                            (e) => handleInputUpdate(e, index)
+                            (e) => handleInputUpdate(e.value, index)
                         }
                         onBlur={
-                            (e) => {                                
-                                handleCustomDepartmentAdd(index, deptInputs[index])
+                            (e) => {
+                                handleCustomDepartmentAdd(index, deptInputs[index]);
                             }}
                         onSelect={
                             (e) => {
-                                handleCustomDepartmentAdd(index, e.value)
+                                handleInputUpdate(e.value, index);
+                                handleCustomDepartmentAdd(index, e.value);
                             }}
                         completeMethod={filterSuggestions}
                         suggestions={filteredSuggestions}
