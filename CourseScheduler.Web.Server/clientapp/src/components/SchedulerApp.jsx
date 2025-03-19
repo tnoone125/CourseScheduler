@@ -2,6 +2,7 @@ import { AppContext } from "../context/AppContext";
 import InstructorForm from "./InstructorForm";
 import RoomForm from "./RoomsForm";
 import TimeslotForm from "./TimeslotForm";
+import CourseForm from "./CourseForm";
 import { useContext } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import AnimationWrapper from "./AnimationWrapper";
@@ -31,6 +32,11 @@ export default function App() {
                 {currentStep === 3 && (
                     <AnimationWrapper keyName="timeslots">
                         <TimeslotForm />
+                    </AnimationWrapper>
+                )}
+                {currentStep === 4 && (
+                    <AnimationWrapper keyName="courses">
+                        <CourseForm />
                     </AnimationWrapper>
                 )}
             </AnimatePresence>

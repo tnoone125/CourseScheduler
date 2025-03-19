@@ -10,6 +10,10 @@ export function AppProvider({ children }) {
         { name: "", studentCapacity: "", permittedDepartments: [] }
     ]);
     const [timeslots, setTimeslots] = useState([]);
+
+    const [courses, setCourses] = useState([
+        { name: "", displayName: "", numberOfSections: "", enrollment: "", preferredTimeslots: [] }
+    ]);
     const [currentStep, setCurrentStep] = useState(1);
 
     return (
@@ -22,6 +26,8 @@ export function AppProvider({ children }) {
             setTimeslots,
             currentStep,
             setCurrentStep,
+            courses,
+            setCourses,
         }}>
             {children}
         </AppContext.Provider>

@@ -8,7 +8,7 @@ export default function TimeslotForm() {
     const MIN_TIME = 8; // 8:00am
     const MAX_TIME = 22; // 10:00pm (22:00)
 
-    const { rooms, teachers, timeslots, setTimeslots, currentStep, setCurrentStep } = useContext(AppContext);
+    const { timeslots, setTimeslots, currentStep, setCurrentStep } = useContext(AppContext);
     const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
     const times = Array.from({ length: (MAX_TIME - MIN_TIME) * (60 / TIMESLOT_LENGTH) + 1 }, (_, i) => {
@@ -54,9 +54,8 @@ export default function TimeslotForm() {
 
     return (
         <>
-            <p>Timeslots: </p>
-            <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>{JSON.stringify(timeslots)}</pre>
-
+            <p>Please choose all the <b>expressions</b> which are the sets of timeslots that the scheduler may assign a course to.</p>
+            <p>An example of an expression can be <b>MWF 10:00am-11:00am</b>, or <b>TuTh 1:00pm-2:30pm</b>. The scheduler allows you to also input differing times for each of the days of that expression (e.g. an expression can be <b>M 8:00am-9:00am</b>, <b>Tu 11:00am-12:00pm</b>, <b>Fri 2:00pm-2:45pm</b>. Simply click all table cells of the timeslots you wish to include as a single expression.</p>
             {timeslots.length > 0 && <TimeslotSummary expressions={timeslots} />}
 
             <div className="button-section">
@@ -68,6 +67,7 @@ export default function TimeslotForm() {
                 >
                     Save Selection and Add Another
                 </button>
+                <button disabled={timeslots.length === 0} onClick={() => setCurrentStep(currentStep+1)}>Submit</button>
             </div>
 
             <div className="p-4">
@@ -125,13 +125,21 @@ export default function TimeslotForm() {
                         ))}
                     </tbody>
                 </table>
-                <button
-                    className="mt-4 bg-green-500 text-white p-2 rounded"
-                    onClick={saveSlots}
-                    disabled={selectedSlots.length === 0}
-                >
-                    Save Selection and Add Another
-                </button>
+                <div className="button-section">
+                    <button
+                        className="mt-4 bg-green-500 text-white p-2 rounded"
+                        onClick={() => {
+                            saveSlots();
+                            window.scrollTo({
+                                top: 0,
+                                behavior: 'smooth'
+                            });
+                        }}
+                        disabled={selectedSlots.length === 0}
+                    >
+                        Save Selection and Add Another
+                    </button>
+                </div>
             </div>
         </>
     );

@@ -5,9 +5,7 @@ VisualStudioVersion = 17.8.34511.84
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CourseScheduler.Calc", "CourseScheduler.Calc\CourseScheduler.Calc.csproj", "{420AAF8D-BDAA-4D1A-832F-C27CE5E9CA21}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CourseScheduler.Web.Server", "CourseScheduler.Web\CourseScheduler.Web.Server\CourseScheduler.Web.Server.csproj", "{D6AE15CE-77CF-4FCA-9370-E37E1B1BB68D}"
-EndProject
-Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "coursescheduler.web.client", "CourseScheduler.Web\coursescheduler.web.client\coursescheduler.web.client.esproj", "{C7BD6F46-FAF6-45C7-AFBE-2FB9B02B5211}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CourseScheduler.Web.Server", "CourseScheduler.Web.Server\CourseScheduler.Web.Server.csproj", "{D6AE15CE-77CF-4FCA-9370-E37E1B1BB68D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

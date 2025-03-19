@@ -1,10 +1,8 @@
-import { fileURLToPath, URL } from 'node:url';
-
 import { defineConfig } from 'vite';
-import plugin from '@vitejs/plugin-react';
 import fs from 'fs';
 import path from 'path';
 import child_process from 'child_process';
+import react from '@vitejs/plugin-react';
 
 const baseFolder =
     process.env.APPDATA !== undefined && process.env.APPDATA !== ''
@@ -38,23 +36,17 @@ if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
 
 // https://vitejs.dev/config/
 export default defineConfig({
-    plugins: [plugin()],
-    resolve: {
-        alias: {
-            '@': fileURLToPath(new URL('./src', import.meta.url))
-        }
+    build: {
+        manifest: true,
+        outDir: 'wwwroot',
+        rollupOptions: {
+            input: 'index.html',
+        },
     },
     server: {
         proxy: {
-            '^/weatherforecast': {
-                target: 'https://localhost:7102/',
-                secure: false
-            }
+            '/api': 'http://localhost:5000',
         },
-        port: 5173,
-        https: {
-            key: fs.readFileSync(keyFilePath),
-            cert: fs.readFileSync(certFilePath),
-        }
-    }
-})
+    },
+    plugins: [react()],
+});
