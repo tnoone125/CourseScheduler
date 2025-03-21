@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useContext } from "react";
 import { AppContext } from "../context/AppContext";
 import { getDepartmentsFromInstructors } from '../util/departments'
 import { MultiSelect } from 'primereact/multiselect';

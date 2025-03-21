@@ -12,7 +12,7 @@ export function AppProvider({ children }) {
     const [timeslots, setTimeslots] = useState([]);
 
     const [courses, setCourses] = useState([
-        { name: "", displayName: "", numberOfSections: "", enrollment: "", preferredTimeslots: [] }
+        { name: "", displayName: "", department: "", numberOfSections: "", enrollment: "", preferredTimeslots: [] }
     ]);
     const [currentStep, setCurrentStep] = useState(1);
 

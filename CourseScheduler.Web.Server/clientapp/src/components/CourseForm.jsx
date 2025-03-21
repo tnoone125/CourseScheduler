@@ -2,8 +2,10 @@ import { useState, useContext } from "react";
 import { AppContext } from "../context/AppContext";
 import { InputText } from "primereact/inputtext";
 import { InputNumber } from "primereact/inputnumber";
+import { Dropdown } from "primereact/dropdown";
 import { MultiSelect } from "primereact/multiselect";
 import TimeslotSummary from "./TimeslotSummary";
+import { getDepartmentsFromInstructors } from "../util/departments"
 import { X } from 'lucide-react';
 
 export default function CourseForm() {
@@ -11,8 +13,10 @@ export default function CourseForm() {
     const [hoverXIndex, setHoverXIndex] = useState(null);
     const [preferredSlots, setPreferredSlots] = useState([[]]);
     const [invalidMessages, setInvalidMessages] = useState([]);
+    const departments = getDepartmentsFromInstructors(teachers);
 
     const submitForm = () => {
+        console.log(JSON.stringify({ instructors: teachers, rooms: rooms, courses: courses, timeslots: timeslots }));
         fetch('http://localhost:5281/api/scheduler', {
             method: 'POST',
             headers: {
@@ -37,7 +41,7 @@ export default function CourseForm() {
         let x = preferredSlots;
         x[index] = event.value;
         setPreferredSlots([...x]);
-        handleChange(index, "preferredTimeslots", x)
+        handleChange(index, "preferredTimeslots", event.value);
     };
 
     const removeCourse = (index) => {
@@ -79,9 +83,11 @@ export default function CourseForm() {
                 messages.push("Course needs a display name.");
             } else if (course.enrollment === "" || course.enrollment < 1) {
                 messages.push("Enrollment should be a positive number.");
+            } else if (course.department == "") {
+                messages.push("Course must have a department.");
             } else if (course.numberOfSections === "" || course.numberOfSections < 1) {
                 messages.push("Each course should have at least one section.");
-            }  else {
+            } else {
                 messages.push("");
             }
         });
@@ -92,7 +98,7 @@ export default function CourseForm() {
         for (let i = 0; i < courses.length; i++) {
             if (courses[i].name === "")
                 return false;
-            else if (courses[i].displayName === "")
+            else if (courses[i].displayName === "" || courses[i].department === "")
                 return false;
             else if (courses[i].enrollment <= 0)
                 return false;
@@ -120,6 +126,12 @@ export default function CourseForm() {
                             placeholder="Display Name"
                             value={course.displayName}
                             onChange={(e) => handleChange(index, "displayName", e.target.value)}
+                        />
+                        <Dropdown
+                            value={course.department}
+                            placeholder="Department"
+                            onChange={(e) => handleChange(index, "department", e.target.value)}
+                            options={departments}
                         />
                         <InputNumber
                             min={1}

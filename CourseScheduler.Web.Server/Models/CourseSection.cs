@@ -1,12 +1,13 @@
 ﻿namespace CourseScheduler.Web.Server.Models
 {
-    public class Course
+    public class CourseSection
     {
         public string Name { get; set; }
         public string DisplayName { get; set; }
+        public int SectionNum { get; set; }
+        public string SectionDisplayName => $"{DisplayName}_{SectionNum}";
         public string Department { get; set; }
-        public int Enrollment { get; set; }
-        public int NumberOfSections { get; set; }
+        public int StudentEnrollment { get; set; }
         public List<int> PreferredTimeslots { get; set; }
     }
 }

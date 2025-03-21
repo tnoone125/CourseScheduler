@@ -13,6 +13,6 @@
     public class DaySlot
     {
         public Day Day { get; set; }
-        public List<(TimeOnly start, TimeOnly end)> timeSlots { get; set; }
+        public List<(TimeOnly start, TimeOnly end)> TimeSlots { get; set; }
     }
 }
