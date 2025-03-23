@@ -1,4 +1,5 @@
 import { useState, useContext, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
 import { InputText } from "primereact/inputtext";
 import { InputNumber } from "primereact/inputnumber";
@@ -9,7 +10,7 @@ import "primereact/resources/primereact.min.css";
 import "primeicons/primeicons.css";
 
 export default function InstructorForm() {
-    const { teachers, setTeachers, setCurrentStep } = useContext(AppContext);
+    const { teachers, setTeachers } = useContext(AppContext);
     const [hoverXIndex, setHoverXIndex] = useState(null);
     const [invalidMessages, setInvalidMessages] = useState([]);
     const [deptInputs, setDeptInputs] = useState([...teachers.map(t => t.department)]);
@@ -18,6 +19,7 @@ export default function InstructorForm() {
     const defaultDepartments = ['Mathematics', 'Computer Science', 'English', 'Theology', 'Classical Languages', 'Modern Languages', 'Social Studies', 'Science'];
     const mergedDepts = [...new Set(currentTeacherDepts.concat(defaultDepartments))];
     const [departments, setDepartments] = useState(mergedDepts);
+    const navigate = useNavigate();
 
     useEffect(() => {
         createValidationMessages();
@@ -202,7 +204,7 @@ export default function InstructorForm() {
                     <button
                         className='submit'
                         disabled={duplicateTeachers() || !validateTeachers(teachers)}
-                        onClick={() => setCurrentStep(2)}>
+                        onClick={() => navigate('/rooms')}>
                         Submit
                     </button>
                     {(duplicateTeachers() || !validateTeachers(teachers)) && (

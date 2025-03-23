@@ -1,4 +1,5 @@
 import { useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
 import { getDepartmentsFromInstructors } from '../util/departments'
 import { MultiSelect } from 'primereact/multiselect';
@@ -9,6 +10,7 @@ import '../css/App.css';
 export default function RoomInputForm() {
     const { rooms, teachers, setRooms, currentStep, setCurrentStep } = useContext(AppContext);
     const departments = getDepartmentsFromInstructors(teachers);
+    const navigate = useNavigate();
 
     const addRoom = () => {
         setRooms([...rooms, { name: "", studentCapacity: "", permittedDepartments: [] }]);
@@ -65,10 +67,10 @@ export default function RoomInputForm() {
                     </div>
                 ))}
                 <div className="button-section">
-                    <button onClick={() => setCurrentStep(1)}>Go Back</button>
+                    <button onClick={() => navigate("/")}>Go Back</button>
                     <button onClick={addRoom}>Add Another</button>
                     <div className="tooltip-container">
-                        <button disabled={!enableButton} onClick={() => setCurrentStep(currentStep + 1)}>Submit</button>
+                        <button disabled={!enableButton} onClick={() => navigate("/timeslots")}>Submit</button>
                         {!enableButton && (
                             <span className="tooltip">
                                 {rooms.some(r => r.studentCapacity == "" || !r.studentCapacity || r.studentCapacity <= 0)

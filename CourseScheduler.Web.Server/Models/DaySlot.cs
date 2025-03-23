@@ -10,9 +10,16 @@
         SATURDAY = 6,
         SUNDAY = 7,
     }
+
+    public class TimeSlot
+    {
+        public TimeOnly Start { get; set; }
+        public TimeOnly End { get; set; }
+    }
+
     public class DaySlot
     {
         public Day Day { get; set; }
-        public List<(TimeOnly start, TimeOnly end)> TimeSlots { get; set; }
+        public List<TimeSlot> TimeSlots { get; set; }
     }
 }

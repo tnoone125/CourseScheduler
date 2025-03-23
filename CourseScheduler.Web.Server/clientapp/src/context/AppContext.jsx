@@ -14,7 +14,10 @@ export function AppProvider({ children }) {
     const [courses, setCourses] = useState([
         { name: "", displayName: "", department: "", numberOfSections: "", enrollment: "", preferredTimeslots: [] }
     ]);
-    const [currentStep, setCurrentStep] = useState(1);
+
+    const [statusMessage, setStatusMessage] = useState("");
+
+    const [scheduleResults, setScheduleResults] = useState([]);
 
     return (
         <AppContext.Provider value={{
@@ -24,10 +27,12 @@ export function AppProvider({ children }) {
             setRooms,
             timeslots,
             setTimeslots,
-            currentStep,
-            setCurrentStep,
             courses,
             setCourses,
+            statusMessage,
+            setStatusMessage,
+            scheduleResults,
+            setScheduleResults,
         }}>
             {children}
         </AppContext.Provider>

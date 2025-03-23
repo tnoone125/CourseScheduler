@@ -11,7 +11,8 @@
                 var sameDaySlots = expression2.Slots.Where(s => s.Day == daySlot.Day);
                 foreach (var timeslot in daySlot.TimeSlots)
                 {
-                    bool hasClashing = sameDaySlots.Any(s => s.TimeSlots.Any(t => timeslot.start < t.end && t.start < timeslot.end));
+                    bool hasClashing = sameDaySlots.Any(s =>
+                        s.TimeSlots.Any(t => timeslot.Start < t.End && t.Start < timeslot.End));
                     if (hasClashing)
                     {
                         return true;

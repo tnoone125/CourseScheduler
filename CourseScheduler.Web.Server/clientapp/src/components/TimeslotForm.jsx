@@ -1,4 +1,5 @@
 import { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
 import createSlots from "../util/timeslots.js";
 import TimeslotSummary from "./TimeslotSummary";
@@ -7,6 +8,7 @@ export default function TimeslotForm() {
     const TIMESLOT_LENGTH = 15; // 15 minutes
     const MIN_TIME = 8; // 8:00am
     const MAX_TIME = 22; // 10:00pm (22:00)
+    const navigate = useNavigate();
 
     const { timeslots, setTimeslots, currentStep, setCurrentStep } = useContext(AppContext);
     const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
@@ -59,7 +61,7 @@ export default function TimeslotForm() {
             {timeslots.length > 0 && <TimeslotSummary expressions={timeslots} />}
 
             <div className="button-section">
-                <button onClick={() => setCurrentStep(currentStep - 1)}>Go Back</button>
+                <button onClick={() => navigate("/rooms")}>Go Back</button>
                 <button
                     className="mt-4 bg-green-500 text-white p-2 rounded"
                     onClick={saveSlots}
@@ -67,7 +69,7 @@ export default function TimeslotForm() {
                 >
                     Save Selection and Add Another
                 </button>
-                <button disabled={timeslots.length === 0} onClick={() => setCurrentStep(currentStep+1)}>Submit</button>
+                <button disabled={timeslots.length === 0} onClick={() => navigate("/courses")}>Submit</button>
             </div>
 
             <div className="p-4">

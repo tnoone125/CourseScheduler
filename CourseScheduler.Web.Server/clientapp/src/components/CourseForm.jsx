@@ -7,26 +7,37 @@ import { MultiSelect } from "primereact/multiselect";
 import TimeslotSummary from "./TimeslotSummary";
 import { getDepartmentsFromInstructors } from "../util/departments"
 import { X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function CourseForm() {
-    const { courses, setCourses, timeslots, teachers, rooms, currentStep, setCurrentStep } = useContext(AppContext);
+    const { courses, setCourses, timeslots, teachers, rooms, setScheduleResults } = useContext(AppContext);
     const [hoverXIndex, setHoverXIndex] = useState(null);
     const [preferredSlots, setPreferredSlots] = useState([[]]);
     const [invalidMessages, setInvalidMessages] = useState([]);
     const departments = getDepartmentsFromInstructors(teachers);
+    const navigate = useNavigate();
 
-    const submitForm = () => {
+    const submitForm = async () => {
         console.log(JSON.stringify({ instructors: teachers, rooms: rooms, courses: courses, timeslots: timeslots }));
-        fetch('http://localhost:5281/api/scheduler', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ instructors: teachers, rooms: rooms, courses: courses, timeslots: timeslots })
-        })
-        .then(response => response.text())
-        .then(data => console.log(data))
-        .catch(error => console.error('Error:', error));
+        try {
+            const response = await fetch('http://localhost:5281/api/scheduler', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ instructors: teachers, rooms: rooms, courses: courses, timeslots: timeslots })
+            });
+            const responseData = await response.json();
+
+            if (response.ok) {
+                setScheduleResults(responseData.results);
+                navigate('/schedule');
+            } else {
+                console.error('Error: ', responseData.results);
+            }
+        } catch (error) {
+            console.error("Error: ", error)
+        }
     };
 
     const handleChange = (index, field, value) => {
@@ -166,6 +177,7 @@ export default function CourseForm() {
                     </div>
                 ))}
                 <div className='button-section'>
+                    <button onClick={() => navigate("/timeslots")}>Back</button>
                     <button onClick={addCourse}>Add Another</button>
                     <div className="tooltip-container">
                         <button

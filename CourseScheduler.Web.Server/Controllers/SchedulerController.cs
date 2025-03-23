@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using CourseScheduler.Web.Server.Models;
-using System.Text.Json;
 using CourseScheduler.Web.Server.SchedulingCalc;
 
 namespace CourseScheduler.Web.Server.Controllers
@@ -21,20 +20,12 @@ namespace CourseScheduler.Web.Server.Controllers
         [HttpPost]
         public IActionResult SubmitSettings([FromBody] JsonInput data)
         {
-            _logger.LogInformation(JsonSerializer.Serialize(data));
+            //_logger.LogInformation(JsonSerializer.Serialize(data));
 
             List<CourseSection> courseSections = CreateCourseSections(data.Courses);
             List<Expression> expressions = CreateExpressionsFromJsonInput(data);
 
-            this.solver.Solve(data.Instructors, expressions, data.Rooms, courseSections);
-
-            return Ok(new { Message = "Success!!!!" });
-        }
-
-        [HttpGet]
-        public IActionResult TestEndpoint()
-        {
-            return Ok(new { Message = "Scheduler API is working!" });
+            return new JsonResult(this.solver.Solve(data.Instructors, expressions, data.Rooms, courseSections));            
         }
 
         private List<Expression> CreateExpressionsFromJsonInput(JsonInput input)
@@ -47,8 +38,11 @@ namespace CourseScheduler.Web.Server.Controllers
                 foreach (var item in possExpression)
                 {
                     var startAndEnds = item.Value;
-                    var timesOnly = startAndEnds.Select(s => (TimeOnly.Parse(s["start"]), TimeOnly.Parse(s["end"]))).ToList();
-
+                    
+                    var timesOnly = startAndEnds
+                        .Select(s => new TimeSlot { Start = TimeOnly.Parse(s["start"]), End = TimeOnly.Parse(s["end"]) })
+                        .ToList();
+                    
                     var day = item.Key;
                     switch (day)
                     {
