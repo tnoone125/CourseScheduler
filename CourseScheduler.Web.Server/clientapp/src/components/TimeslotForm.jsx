@@ -10,7 +10,7 @@ export default function TimeslotForm() {
     const MAX_TIME = 22; // 10:00pm (22:00)
     const navigate = useNavigate();
 
-    const { timeslots, setTimeslots, currentStep, setCurrentStep } = useContext(AppContext);
+    const { timeslots, setTimeslots } = useContext(AppContext);
     const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
     const times = Array.from({ length: (MAX_TIME - MIN_TIME) * (60 / TIMESLOT_LENGTH) + 1 }, (_, i) => {

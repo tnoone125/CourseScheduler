@@ -1,120 +1,98 @@
-﻿import React, { useState, useContext } from 'react';
+﻿import { useState, useContext } from "react";
 import { AppContext } from "../context/AppContext";
-import { DataTable } from 'primereact/datatable';
-import { Column } from 'primereact/column';
-import { Button } from 'primereact/button';
+import { Dropdown } from "primereact/dropdown";
+import "../css/Schedule.css";
 
-export default function Schedule() {
+const displayStartToEnd = (start, end) => {
+    var startHours = parseInt(start.split(":")[0], 10);
+    var startMins = parseInt(start.split(":")[1], 10);
+    var endHours = parseInt(end.split(":")[0], 10);
+    var endMins = parseInt(end.split(":")[1], 10);
+
+    var startAmPm = startHours >= 12 ? "PM" : "AM";
+    var endAmPm = endHours >= 12 ? "PM" : "AM";
+    if (startHours > 12) {
+        startHours = startHours % 12;
+    }
+    if (endHours > 12) {
+        endHours = endHours % 12;
+    }
+    return `${startHours}:${startMins<10?"0":""}${startMins}${startAmPm}-${endHours}:${endMins<10?"0":""}${endMins}${endAmPm}`;
+};
+
+const Schedule = () => {
+    const TOTAL_MINUTES = 60 * (17 - 8);
+
     const { scheduleResults } = useContext(AppContext);
-    console.log(scheduleResults);
     const [viewRoom, setViewRoom] = useState(true);
-    const [selectedRoom, setSelectedRoom] = useState(null);
-    const [selectedInstructor, setSelectedInstructor] = useState(null);
     const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+
     const teacherNames = [...new Set(scheduleResults.map(item => item.instructor.name))];
     const roomNames = [...new Set(scheduleResults.map(item => item.room.name))];
 
-    // Filter courses based on the selected room or instructor
-    const filteredData = scheduleResults.filter((item) => {
-        if (viewRoom && selectedRoom) {
-            return item.room.name === selectedRoom;
-        }
-        if (!viewRoom && selectedInstructor) {
-            return item.instructor.name === selectedInstructor;
-        }
-        return true;
-    });
+    const [selectedRoom, setSelectedRoom] = useState(roomNames[0] || null);
+    const [selectedInstructor, setSelectedInstructor] = useState(teacherNames[0] || null);
 
-    const scheduleByDay = {};
-    daysOfWeek.forEach((day) => {
-        scheduleByDay[day] = [];
-    });
+    const filteredData = scheduleResults.filter((item) =>
+        viewRoom ? item.room.name === selectedRoom : item.instructor.name === selectedInstructor
+    );
 
-    filteredData.forEach((course) => {
-        course.expression.slots.forEach((slot) => {
-            const dayIndex = slot.day - 1;
-            const dayName = daysOfWeek[dayIndex];
-
-            slot.timeSlots.forEach((timeSlot) => {
-                if (!viewRoom) {
-                    scheduleByDay[dayName].push({
-                        start: timeSlot.start,
-                        end: timeSlot.end,
-                        course: course.courseSection.displayName,
-                        room: course.room.name,
-                    });
-                } else {
-                    scheduleByDay[dayName].push({
-                        start: timeSlot.start,
-                        end: timeSlot.end,
-                        course: course.courseSection.displayName,
-                        instructor: course.instructor.name,
-                    });
-                }
-            });
-        })
-    });
-
-    Object.keys(scheduleByDay).forEach((day) => {
-        scheduleByDay[day].sort((a, b) => a.start.localeCompare(b.start));
-    });
-
-    const maxRows = Math.max(...Object.values(scheduleByDay).map((list) => list.length));
-    const tableData = Array.from({ length: maxRows }, (_, rowIndex) => {
-        const row = {};
-        daysOfWeek.forEach((day) => {
-            row[day] = scheduleByDay[day][rowIndex] || {}; // Empty slot if no class
-        });
-        return row;
-    });
-
-    const cellTemplate = (rowData, column) => {
-        const entry = rowData[column.field];
-        return entry.course ? (
-            <div key={`${entry.course}_${entry.start}-${entry.end}_${viewRoom ? entry.instructor : entry.room}`}>
-                <strong>{entry.course}</strong>
-                <br />
-                {entry.start} - {entry.end}
-                <br />
-                <small>{viewRoom ? entry.instructor : entry.room}</small>
-            </div>
-        ) : null;
-    };
-
-    const handleToggleView = () => {
-        setViewRoom(!viewRoom);
-        
-        setSelectedRoom(null);
-        setSelectedInstructor(null);
-    };
-
-    const handleRoomSelect = (roomName) => {
-        setSelectedRoom(roomName);
-        setSelectedInstructor(null);
-    };
-
-    const handleInstructorSelect = (instructorName) => {
-        setSelectedInstructor(instructorName);
-        setSelectedRoom(null);
+    const getPositionAndHeight = (start, end) => {
+        const startTime = parseInt(start.split(":"), 10) * 60 + parseInt(start.split(":")[1], 10);
+        const endTime = parseInt(end.split(":"), 10) * 60 + parseInt(end.split(":")[1], 10);
+        return {
+            top: ((startTime - 480) / TOTAL_MINUTES) * 100 + 2 + "%", // 8:00 AM is 480 min from midnight, so it serves as 0
+            height: ((endTime - startTime) / TOTAL_MINUTES) * 100 + "%" // Proportional height based on 8AM-5PM
+        };
     };
 
     return (
         <div>
-            <Button label={`View by ${viewRoom ? 'Instructor' : 'Room'}`} onClick={handleToggleView} />
-            {viewRoom ? (
-                <div>
-                    {roomNames.map(t => <Button label={t} onClick={() => handleRoomSelect(t)} />)}
-                </div>
-            ) : (
-                <div>
-                    {teacherNames.map(t => <Button label={t} onClick={() => handleInstructorSelect(t)} />)}
-                </div>
-            )}
-            <DataTable value={tableData} stripedRows>
-                {daysOfWeek.map((day) => (
-                    <Column key={day} field={day} header={day} body={cellTemplate} />
+            <div>
+                <button onClick={() => setViewRoom(!viewRoom)}>
+                    View by {viewRoom ? "Instructor" : "Room"}
+                </button>
+                <Dropdown
+                    value={viewRoom ? selectedRoom : selectedInstructor}
+                    onChange={(e) => {
+                        if (viewRoom) {
+                            setSelectedRoom(e.target.value);
+                        } else {
+                            setSelectedInstructor(e.target.value);
+                        }
+                    }}
+                    options={viewRoom ? roomNames : teacherNames}
+                />
+            </div>
+
+            <div className="schedule-container">
+                {daysOfWeek.map(day => (
+                    <div key={day} className="day-column">
+                        <h4>{day}</h4>
+                        {filteredData.map(course => {
+                            const slot = course.expression.slots.find(s => s.day === daysOfWeek.indexOf(day) + 1);
+                            if (slot) {
+                                const timeSlot = slot.timeSlots[0];
+                                const { top, height } = getPositionAndHeight(timeSlot.start, timeSlot.end);
+                                return (
+                                    <div
+                                        key={course.courseSection.sectionDisplayName}
+                                        className="course-block"
+                                        style={{ top, height }}
+                                    >
+                                        {course.courseSection.sectionDisplayName} ({viewRoom ? course.instructor.name : course.room.name})
+                                        <br />
+                                        {displayStartToEnd(timeSlot.start, timeSlot.end)}
+                                    </div>
+                                );
+                            }
+                            return null;
+                        })}
+                    </div>
                 ))}
-            </DataTable>
+            </div>
         </div>
     );
 };
+
+export default Schedule;
