@@ -76,8 +76,8 @@ export default function InstructorForm() {
     }
 
     const coursesValid = (teacher) => {
-        const min = teacher.minCourses === "" ? null : Number(teacher.minCourses);
-        const max = teacher.maxCourses === "" ? null : Number(teacher.maxCourses);
+        const min = teacher.courseMin === "" ? null : Number(teacher.courseMin);
+        const max = teacher.courseMax === "" ? null : Number(teacher.courseMax);
 
         if (min === null || max === null || isNaN(min) || isNaN(max)) {
             return true; // Allow empty values
@@ -92,7 +92,7 @@ export default function InstructorForm() {
 
     const handleChange = (index, field, value) => {
         const updatedTeachers = [...teachers];
-        updatedTeachers[index][field] = field.includes("Courses") ? (value === "" ? "" : Number(value)) : value;
+        updatedTeachers[index][field] = field.includes("course") ? (value === "" ? "" : Number(value)) : value;
 
         setTeachers(updatedTeachers);
     };
@@ -107,7 +107,7 @@ export default function InstructorForm() {
     };
 
     const addTeacher = () => {
-        setTeachers([...teachers, { name: "", department: "", minCourses: "", maxCourses: "" }]);
+        setTeachers([...teachers, { name: "", department: "", courseMin: "", courseMax: "" }]);
         setDeptInputs([...deptInputs, ""]);
     };
 
@@ -115,7 +115,7 @@ export default function InstructorForm() {
         let updatedTeachers = teachers.filter((_, i) => i !== index);
         if (updatedTeachers.length == 0) {
             updatedTeachers = [
-                { name: "", department: "", minCourses: "", maxCourses: "" }
+                { name: "", department: "", courseMin: "", courseMax: "" }
             ];
         }
         setTeachers(updatedTeachers);
@@ -181,8 +181,8 @@ export default function InstructorForm() {
                         mode="decimal"
                         useGrouping={false}
                         placeholder="Course Min (Optional)"
-                        value={teacher.minCourses}
-                        onChange={(e) => handleChange(index, "minCourses", e.value)}
+                        value={teacher.courseMin}
+                        onChange={(e) => handleChange(index, "courseMin", e.value)}
                     />
                     <InputNumber
                         min={0}
@@ -190,8 +190,8 @@ export default function InstructorForm() {
                         mode="decimal"
                         useGrouping={false}
                         placeholder="Course Max (Optional)"
-                        value={teacher.maxCourses}
-                        onChange={(e) => handleChange(index, "maxCourses", e.value)}
+                        value={teacher.courseMax}
+                        onChange={(e) => handleChange(index, "courseMax", e.value)}
                     />
                     <span style={hoverXIndex === index ? { cursor: "pointer" } : { cursor: "auto" }} onMouseEnter={() => setHoverXIndex(index)} onMouseLeave={() => setHoverXIndex(null)}>
                         <X size={20} color={hoverXIndex === index ? "red" : "black"} onClick={() => removeTeacher(index)} />

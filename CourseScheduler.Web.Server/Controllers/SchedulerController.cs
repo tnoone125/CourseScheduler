@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using CourseScheduler.Web.Server.Models;
+using Models = CourseScheduler.Web.Server.Models;
 using CourseScheduler.Web.Server.SchedulingCalc;
+using CourseScheduler.Web.Server.DataPersistence;
 
 namespace CourseScheduler.Web.Server.Controllers
 {
@@ -10,88 +11,90 @@ namespace CourseScheduler.Web.Server.Controllers
     {
         private readonly ILogger<SchedulerController> _logger;
         private readonly ScheduleSolver solver;
+        private readonly CourseSchedulerRepository _repository;
 
-        public SchedulerController(ILogger<SchedulerController> logger)
+        public SchedulerController(CourseSchedulerRepository repository, ILogger<SchedulerController> logger)
         {
             _logger = logger;
             solver = new ScheduleSolver();
+            _repository = repository;
         }
 
         [HttpPost]
         public IActionResult SubmitSettings([FromBody] JsonInput data)
         {
-            //_logger.LogInformation(JsonSerializer.Serialize(data));
-
-            List<CourseSection> courseSections = CreateCourseSections(data.Courses);
-            List<Expression> expressions = CreateExpressionsFromJsonInput(data);
+            this._repository.UpsertInstructorsAsync(data.Instructors).Wait();
+            this._repository.UpsertRoomsAsync(data.Rooms).Wait();
+            List<Models.CourseSection> courseSections = CreateCourseSections(data.Courses);
+            List<Models.Expression> expressions = CreateExpressionsFromJsonInput(data);
 
             return new JsonResult(this.solver.Solve(data.Instructors, expressions, data.Rooms, courseSections));            
         }
 
-        private List<Expression> CreateExpressionsFromJsonInput(JsonInput input)
+        private List<Models.Expression> CreateExpressionsFromJsonInput(JsonInput input)
         {
-            List<Expression> expressions = new List<Expression>();
+            List<Models.Expression> expressions = new List<Models.Expression>();
             for (int i = 0; i < input.Timeslots.Count(); i++)
             {
                 var possExpression = input.Timeslots[i];
-                List<DaySlot> daySlots = new List<DaySlot>();
+                List<Models.DaySlot> daySlots = new List<Models.DaySlot>();
                 foreach (var item in possExpression)
                 {
                     var startAndEnds = item.Value;
                     
                     var timesOnly = startAndEnds
-                        .Select(s => new TimeSlot { Start = TimeOnly.Parse(s["start"]), End = TimeOnly.Parse(s["end"]) })
+                        .Select(s => new Models.TimeSlot { Start = TimeOnly.Parse(s["start"]), End = TimeOnly.Parse(s["end"]) })
                         .ToList();
                     
                     var day = item.Key;
                     switch (day)
                     {
                         case "Monday":
-                            daySlots.Add(new DaySlot
+                            daySlots.Add(new Models.DaySlot
                             {
-                                Day = Day.MONDAY,
+                                Day = Models.Day.MONDAY,
                                 TimeSlots = timesOnly,
                             });
                             break;
                         case "Tuesday":
-                            daySlots.Add(new DaySlot
+                            daySlots.Add(new Models.DaySlot
                             {
-                                Day = Day.TUESDAY,
+                                Day = Models.Day.TUESDAY,
                                 TimeSlots = timesOnly,
                             });
                             break;
                         case "Wednesday":
-                            daySlots.Add(new DaySlot
+                            daySlots.Add(new Models.DaySlot
                             {
-                                Day = Day.WEDNESDAY,
+                                Day = Models.Day.WEDNESDAY,
                                 TimeSlots = timesOnly,
                             });
                             break;
                         case "Thursday":
-                            daySlots.Add(new DaySlot
+                            daySlots.Add(new Models.DaySlot
                             {
-                                Day = Day.THURSDAY,
+                                Day = Models.Day.THURSDAY,
                                 TimeSlots = timesOnly,
                             });
                             break;
                         case "Friday":
-                            daySlots.Add(new DaySlot
+                            daySlots.Add(new Models.DaySlot
                             {
-                                Day = Day.FRIDAY,
+                                Day = Models.Day.FRIDAY,
                                 TimeSlots = timesOnly,
                             });
                             break;
                         case "Saturday":
-                            daySlots.Add(new DaySlot
+                            daySlots.Add(new Models.DaySlot
                             {
-                                Day = Day.SATURDAY,
+                                Day = Models.Day.SATURDAY,
                                 TimeSlots = timesOnly,
                             });
                             break;
                         case "Sunday":
-                            daySlots.Add(new DaySlot
+                            daySlots.Add(new Models.DaySlot
                             {
-                                Day = Day.SUNDAY,
+                                Day = Models.Day.SUNDAY,
                                 TimeSlots = timesOnly,
                             });
                             break;
@@ -99,19 +102,19 @@ namespace CourseScheduler.Web.Server.Controllers
                             throw new Exception("Unrecognized day of week");
                     }
                 }
-                expressions.Add(new Expression { Slots = daySlots });
+                expressions.Add(new Models.Expression { Slots = daySlots });
             }
             return expressions;
         }
 
-        protected List<CourseSection> CreateCourseSections(List<Course> courses)
+        protected List<Models.CourseSection> CreateCourseSections(List<Models.Course> courses)
         {
             return courses.SelectMany(c =>
             {
-                var sections = new List<CourseSection>();
+                var sections = new List<Models.CourseSection>();
                 for (int i = 1; i <= c.NumberOfSections; i++)
                 {
-                    sections.Add(new CourseSection
+                    sections.Add(new Models.CourseSection
                     {
                         Name = c.Name,
                         DisplayName = c.DisplayName,
@@ -128,9 +131,9 @@ namespace CourseScheduler.Web.Server.Controllers
 
     public class JsonInput
     {
-        public List<Instructor> Instructors { get; set; }
-        public List<Room> Rooms { get; set; }
-        public List<Course> Courses { get; set; }
+        public List<Models.Instructor> Instructors { get; set; }
+        public List<Models.Room> Rooms { get; set; }
+        public List<Models.Course> Courses { get; set; }
         public List<Dictionary<string, List<Dictionary<string, string>>>> Timeslots { get; set; }
     }
 }

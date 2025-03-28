@@ -4,7 +4,7 @@ export const AppContext = createContext();
 
 export function AppProvider({ children }) {
     const [teachers, setTeachers] = useState([
-        { name: "", department: "", minCourses: "", maxCourses: "" }
+        { name: "", department: "", courseMin: "", courseMax: "" }
     ]);
     const [rooms, setRooms] = useState([
         { name: "", studentCapacity: "", permittedDepartments: [] }
