@@ -76,8 +76,8 @@ export default function InstructorForm() {
     }
 
     const coursesValid = (teacher) => {
-        const min = teacher.courseMin === "" ? null : Number(teacher.courseMin);
-        const max = teacher.courseMax === "" ? null : Number(teacher.courseMax);
+        const min = teacher.courseMin === null ? null : Number(teacher.courseMin);
+        const max = teacher.courseMax === null ? null : Number(teacher.courseMax);
 
         if (min === null || max === null || isNaN(min) || isNaN(max)) {
             return true; // Allow empty values
@@ -107,7 +107,7 @@ export default function InstructorForm() {
     };
 
     const addTeacher = () => {
-        setTeachers([...teachers, { name: "", department: "", courseMin: "", courseMax: "" }]);
+        setTeachers([...teachers, { name: "", department: "", courseMin: null, courseMax: null }]);
         setDeptInputs([...deptInputs, ""]);
     };
 
@@ -181,7 +181,7 @@ export default function InstructorForm() {
                         mode="decimal"
                         useGrouping={false}
                         placeholder="Course Min (Optional)"
-                        value={teacher.courseMin}
+                        value={teacher.courseMin ?? ""}
                         onChange={(e) => handleChange(index, "courseMin", e.value)}
                     />
                     <InputNumber
@@ -190,7 +190,7 @@ export default function InstructorForm() {
                         mode="decimal"
                         useGrouping={false}
                         placeholder="Course Max (Optional)"
-                        value={teacher.courseMax}
+                        value={teacher.courseMax ?? ""}
                         onChange={(e) => handleChange(index, "courseMax", e.value)}
                     />
                     <span style={hoverXIndex === index ? { cursor: "pointer" } : { cursor: "auto" }} onMouseEnter={() => setHoverXIndex(index)} onMouseLeave={() => setHoverXIndex(null)}>

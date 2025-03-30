@@ -1,4 +1,5 @@
 ﻿using CourseScheduler.Web.Server.Models;
+using System.Collections.Concurrent;
 using Microsoft.EntityFrameworkCore;
 
 namespace CourseScheduler.Web.Server.DataPersistence
@@ -76,6 +77,75 @@ namespace CourseScheduler.Web.Server.DataPersistence
             }
 
             return insertedRooms;
+        }
+
+        public async Task<ConcurrentDictionary<int, int>> InsertExpressionsAsync(IEnumerable<Models.Expression> expressions)
+        {
+            var expressionIndexToExpressionId = new ConcurrentDictionary<int, int>();
+
+            foreach (var (expression, i) in expressions.Select((expression, i) => (expression, i)))
+            {
+                var newExpression = new Expression
+                {
+                    ExpressionTimeslots = new List<ExpressionTimeslot>(),
+                };
+
+                _context.Expressions.Add(newExpression);
+                await _context.SaveChangesAsync();
+
+                expressionIndexToExpressionId.TryAdd(i + 1, newExpression.ExpressionId);
+
+                var timeslotsToInsert = expression.Slots.SelectMany(s => s.TimeSlots.Select(t => new Timeslot
+                {
+                    Start = t.Start.ToString(),
+                    End = t.End.ToString(),
+                    Day = s.Day.ToString(),
+                    ExpressionTimeslots = new List<ExpressionTimeslot>(),
+                })).ToList();
+
+                var expressionTimeSlots = new List<ExpressionTimeslot>();
+                foreach (var t in timeslotsToInsert)
+                {
+                    var expressionTimeSlot = new ExpressionTimeslot
+                    {
+                        Expression = newExpression,
+                        Timeslot = t,
+                    };
+                    expressionTimeSlots.Add(expressionTimeSlot);
+                    t.ExpressionTimeslots.Add(expressionTimeSlot);
+                    newExpression.ExpressionTimeslots.Add(expressionTimeSlot);
+                }
+                _context.Timeslots.AddRange(timeslotsToInsert);
+                _context.ExpressionTimeslots.AddRange(expressionTimeSlots);
+
+                await _context.SaveChangesAsync();
+            }
+
+            return expressionIndexToExpressionId;
+        }
+
+        public async Task InsertCoursesAsync(List<Models.Course> courses, ConcurrentDictionary<int, int> expressionIndexToExpressionId)
+        {
+            foreach (var c in courses)
+            {
+                var course = new Course
+                {
+                    Name = c.Name,
+                    DisplayName = c.DisplayName,
+                    Department = c.Department,
+                    NumberOfSections = c.NumberOfSections,
+                    Enrollment = c.Enrollment,
+                    PreferredCourseExpressions = c.PreferredTimeslots.Select(p => new PreferredCourseExpression
+                    {
+                        ExpressionId = expressionIndexToExpressionId[p]
+                    }).ToList(),
+                };
+
+                _context.Courses.Add(course);
+                _context.PreferredCourseExpressions.AddRange(course.PreferredCourseExpressions);
+
+                await _context.SaveChangesAsync();
+            }
         }
 
         private async Task UpdatePreferredDepartments(Room existingRoom, IEnumerable<PreferredDepartmentRoom> newDepartments)

@@ -21,12 +21,16 @@ namespace CourseScheduler.Web.Server.Controllers
         }
 
         [HttpPost]
-        public IActionResult SubmitSettings([FromBody] JsonInput data)
+        public async Task<IActionResult> SubmitSettings([FromBody] JsonInput data)
         {
             this._repository.UpsertInstructorsAsync(data.Instructors).Wait();
             this._repository.UpsertRoomsAsync(data.Rooms).Wait();
+            
             List<Models.CourseSection> courseSections = CreateCourseSections(data.Courses);
             List<Models.Expression> expressions = CreateExpressionsFromJsonInput(data);
+
+            var expressionIndexToExpressionId = await this._repository.InsertExpressionsAsync(expressions);
+            await this._repository.InsertCoursesAsync(data.Courses, expressionIndexToExpressionId);
 
             return new JsonResult(this.solver.Solve(data.Instructors, expressions, data.Rooms, courseSections));            
         }

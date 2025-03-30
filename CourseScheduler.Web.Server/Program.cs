@@ -23,7 +23,12 @@ builder.Configuration.AddAzureKeyVault(keyVaultEndpoint, new DefaultAzureCredent
 
 var connectionString = builder.Configuration["courseSchedulerConnectionString"];
 builder.Services.AddDbContext<CourseSchedulerContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseSqlServer(connectionString,
+    sqlServerOptions => sqlServerOptions.EnableRetryOnFailure(
+        maxRetryCount: 3,
+        maxRetryDelay: TimeSpan.FromSeconds(30),
+        errorNumbersToAdd: null
+    )));
 
 builder.Services.AddScoped<CourseSchedulerRepository>();
 

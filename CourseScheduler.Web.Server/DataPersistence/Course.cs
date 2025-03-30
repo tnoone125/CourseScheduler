@@ -18,6 +18,9 @@ namespace CourseScheduler.Web.Server.DataPersistence
         [StringLength(30)]
         public string DisplayName { get; set; }
 
+        [StringLength(65)]
+        public string Department { get; set; }
+
         [Required]
         public int NumberOfSections { get; set; }
 

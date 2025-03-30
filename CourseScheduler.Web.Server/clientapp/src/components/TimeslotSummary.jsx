@@ -74,7 +74,7 @@ export default function TimeslotSummary({ expressions }) {
     ) : (
             <div className="summary-header-closed">
                 <span>{expressions.length} expression{expressions.length > 1 ? "s" : ""}</span>
-                <span onClick={() => setDisplaying(!displaying)}><i className="pi pi-chevron-down" /></span>
+                <span className="collapse" onClick={() => setDisplaying(!displaying)}><i className="pi pi-chevron-down" /></span>
             </div>
     );
 
